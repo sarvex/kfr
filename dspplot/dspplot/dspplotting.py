@@ -17,24 +17,22 @@ def gen_ticks(stop, start=10):
             yield stop
             return
         yield start * s
-    for t in gen_ticks(stop, start * 10):
-        yield t
+    yield from gen_ticks(stop, start * 10)
 
 def gen_tick_labels(stop, start=10):
-    yield (str(int(start)) + 'Hz').replace('000Hz', 'kHz')
+    yield f'{int(start)}Hz'.replace('000Hz', 'kHz')
     for s in range(1, 10):
         if start * s > stop:
-            yield (str(int(stop)) + 'Hz').replace('000Hz', 'kHz')
+            yield f'{int(stop)}Hz'.replace('000Hz', 'kHz')
             return
         yield ''
-    for t in gen_tick_labels(stop, start * 10):
-        yield t
+    yield from gen_tick_labels(stop, start * 10)
 
 def smooth_colormap(colors, name='cmap1'):
     to_rgb = clr.ColorConverter().to_rgb
     colors = [(p, to_rgb(c)) for p, c in colors]
     result = {'red': [], 'green': [], 'blue': []}
-    for index, item in enumerate(colors):
+    for item in colors:
         pos, color = item
         if pos is not None:
             r, g, b = color

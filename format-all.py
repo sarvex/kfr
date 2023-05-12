@@ -14,21 +14,18 @@ ignore = ['build/*', 'build-*', 'cmake-*', '.*', 'include/kfr/io/dr']
 
 filenames = []
 for root, dirnames, files in os.walk(path, path):
-    ignore_dir = False
-    for mask in ignore:
-        if fnmatch.fnmatch(os.path.relpath(root, path), mask):
-            ignore_dir = True
-            break
-
+    ignore_dir = any(
+        fnmatch.fnmatch(os.path.relpath(root, path), mask) for mask in ignore
+    )
     if not ignore_dir:
         for mask in masks:
-            for filename in fnmatch.filter(files, mask):
-                filenames.append(os.path.join(root, filename))
-
-
+            filenames.extend(
+                os.path.join(root, filename)
+                for filename in fnmatch.filter(files, mask)
+            )
 for filename in filenames:
     print( filename, '...' )
     subprocess.call(['clang-format', '-i', filename])
     # Fix clang-format bug: https://llvm.org/bugs/show_bug.cgi?id=26125
-    for tmp_file in glob.glob(filename+'*.tmp'):
+    for tmp_file in glob.glob(f'{filename}*.tmp'):
         os.remove(tmp_file)
